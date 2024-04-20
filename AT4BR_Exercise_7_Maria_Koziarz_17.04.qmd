@@ -6,20 +6,18 @@ editor: visual
 
 ```{r}
 library("ggplot2")
-library("plotly")
 library(dplyr)
 library(tidyr)
 ```
 
 ## Uploading data
 
-First, I need to upload set of data which was the base for the original plot. I copied the tables from publication "*Cotter DJ, et al. (2004) Hematocrit was not validated as a surrogate endpoint for survival among epoetin-treated hemodialysis patients." and I created proper csv files.*
+First, I need to upload set of data which was the base for the original plot. I copied the tables from publication "*Cotter DJ, et al. (2004) Hematocrit was not validated as a surrogate endpoint for survival among epoetin-treated hemodialysis patients."* and I created proper csv files*.*
 
 ```{r}
 mortality_ratio<-read.csv("mortality_rate.csv")
 hazard_ratio<-read.csv("hazard_ratio.csv")
 
-mortality_ratio
 ```
 
 ## Plots fixing
@@ -36,7 +34,7 @@ First, make the table mortality_ratio in long format:
 
 mortality_ratio_long<-pivot_longer(data=mortality_ratio,
                                    cols=colnames(mortality_ratio)[-1], #pivoted data from all columns except for 1st
-                                   values_to = "Ratio", #name of the column contained values of the mortalitu rate
+                                   values_to = "Ratio", #name of the column contained values of the mortality rate
                                    names_to = "Hematocrit_group") #name of the column contained names of the groups
 mortality_ratio_long
 ```
@@ -61,3 +59,31 @@ What I changed:
 -   data is divided by hematocrit group and each value contains of 4 quartile bars
 
 -   colors are more eye-pleasing
+
+#### Relative risk of death by epoetin dose quartiles as a function of hematocrit level
+
+Fixing the second plot would be similar to the first one. First, table format change:
+
+```{r}
+hazard_ratio_long<-pivot_longer(data = hazard_ratio,
+                                   cols=colnames(hazard_ratio)[-1], #pivoted data from all columns except for 1st
+                                   values_to = "Relative_risk", #name of the column contained values of the ralative risk of death
+                                   names_to = "Hematocrit_group") #name of the column contained names of the groups
+hazard_ratio_long
+```
+
+Again, we can use `geom_bar` function to create better plot:
+
+```{r}
+ggplot(data = hazard_ratio_long, aes(x = Hematocrit_group, fill = Dose.Quartile))+
+  geom_bar(aes(y=Relative_risk), stat = "summary", position = "dodge")+ #creation of bar chart
+  labs(title="Relative risk of death by hematocrit group
+disaggregated by epoetin dose quartile", #labels setting
+       x="Hematocrit group", 
+       y="Hazard ratio",
+       fill = "Dose quartile" )
+```
+
+The changes in plot above are the same as changes in the previous one.
+
+And this is how we can fix 'bad' plots.😊
